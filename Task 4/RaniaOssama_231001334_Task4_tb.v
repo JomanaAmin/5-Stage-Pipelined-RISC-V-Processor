@@ -24,6 +24,11 @@ module PC_Unit_tb;
 
     always #5 clk = ~clk;  
 
+    always @(posedge clk) begin
+      $display("Time=%0t | PC=%0d | PCWrite=%b | BranchTaken=%b | reset=%b",
+              $time, PC, PCWrite, BranchTaken, reset);
+    end
+
     initial begin
         clk = 0;
         reset = 1;
@@ -55,6 +60,7 @@ module PC_Unit_tb;
 
 
         #10;
+
         $stop;
     end
 

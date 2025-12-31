@@ -1,67 +1,26 @@
-`timescale 1ns / 1ps
+module PC_Unit (
+    input  wire        clk,
+    input  wire        reset,
 
-module PC_Unit_tb;
+    input  wire        PCWrite,
+    input  wire        BranchTaken,
+    input  wire [63:0] BranchTarget,
 
-   
-    reg clk;
-    reg reset;
-    reg PCWrite;
-    reg BranchTaken;
-    reg [63:0] BranchTarget;
+    output reg  [63:0] PC
+);
 
+    wire [63:0] PC_plus4;
+    wire [63:0] PC_next;
 
-    wire [63:0] PC;
+    assign PC_plus4 = PC + 64'd4;
 
+    assign PC_next = (BranchTaken) ? BranchTarget : PC_plus4;
 
-    PC_Unit dut (
-        .clk(clk),
-        .reset(reset),
-        .PCWrite(PCWrite),
-        .BranchTaken(BranchTaken),
-        .BranchTarget(BranchTarget),
-        .PC(PC)
-    );
-
-    always #5 clk = ~clk;  
-
-    always @(posedge clk) begin
-      $display("Time=%0t | PC=%0d | PCWrite=%b | BranchTaken=%b | reset=%b",
-              $time, PC, PCWrite, BranchTaken, reset);
-    end
-
-    initial begin
-        clk = 0;
-        reset = 1;
-        PCWrite = 1;
-        BranchTaken = 0;
-        BranchTarget = 64'd0;
-
-
-        #10;
-        reset = 0;
-
-  
-        #10;   
-        #10;   
-        #10;   
-
-        PCWrite = 0;
-        #20; 
-
-    
-        PCWrite = 1;
-        #10;  
-
-        BranchTaken = 1;
-        BranchTarget = 64'd100;
-        #10;  
-        BranchTaken = 0;
-        #10;   // PC = 104
-
-
-        #10;
-
-        $stop;
+    always @(posedge clk or posedge reset) begin
+        if (reset)
+            PC <= 64'd0;
+        else if (PCWrite)
+            PC <= PC_next;
     end
 
 endmodule
